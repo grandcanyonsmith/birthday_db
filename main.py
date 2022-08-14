@@ -160,8 +160,10 @@ def print_all_data_colorful(table):
     table = AsciiTable(data, headers)
     return table.table
 
-print(print_all_data_colorful(table))
-print(get_anniversary_dates_based_on_relationship('uncle'))
-print(get_birthday('Doug'))
-print(get_birthdays_based_on_relationship('brother'))
-print(get_birthdays_based_on_relationship('sister'))
+if __name__ == '__main__':
+    print(print_all_data_colorful(table))
+    print(get_anniversary_dates_based_on_relationship('uncle'))
+    print(get_birthday('Doug'))
+    print(get_birthdays_based_on_relationship('brother'))
+    print(get_birthdays_based_on_relationship('sister'))
+
