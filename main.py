@@ -41,6 +41,15 @@ def get_all_data(table):
     cursor.execute("SELECT * FROM " + table)
     return cursor.fetchall()
 
+def format_date(date):
+    date = str(date)
+    date = date.split('-')
+    date = '-'.join(date)
+    date = datetime.strptime(date, '%Y-%m-%d')
+    formatted_date = date.strftime('%B %d')
+
+    return formatted_date
+
 
 # query what birthdays are on a given day, returns a list of names
 def get_birthdays_on_day(day, table):
@@ -58,19 +67,12 @@ def print_birthdays_on_day(day, table):
 def get_birthday(name):
     cursor.execute("SELECT birthday FROM " + table + " WHERE name LIKE '%" + name + "%'")  # noqa
     birthday = cursor.fetchall()
-    # convert the birthday to a string
     if birthday == []:
         return 'That name is not in the database'
     else:
         birthday = str(birthday[0][0])
-        # split the string into a list
-        birthday = birthday.split('-')
-        # convert the list to a string
-        birthday = '-'.join(birthday)
-        # convert that string to a datetime object
-        birthday = datetime.strptime(birthday, '%Y-%m-%d')
-        formatted_day = birthday.strftime('%B %d')
-        return formatted_day
+        birthday = format_date(birthday)
+        return birthday
 
 
 # print the birthday of people that are my cousins using the 'relation' column
@@ -82,17 +84,10 @@ def get_birthdays_based_on_relationship(relationship):
         birthday = birthday.split('-')
         birthday = '-'.join(birthday)
         if birthday != 'None' and birthday != '':
-            birthday = datetime.strptime(birthday, '%Y-%m-%d')
-            formatted_day = birthday.strftime('%B %d')
+            formatted_day = format_date(birthday)
             birthdays[i] = (name, formatted_day)
     return [x for x in birthdays if x[1] not in ['None', '']]
-# print the birthdays of people that are my cousins using the 'relation' column
 
-def print_birthdays_based_on_relationship(relationship):
-
-    for name, birthday in get_birthdays_based_on_relationship(relationship):
-
-        print(name + ' ' + str(birthday))
 
 def get_anniversary_dates_based_on_relationship(relationship):
     cursor.execute("SELECT name, anniversary FROM " + table + " WHERE relation LIKE '%" + relationship + "%'")  # noqa
@@ -102,43 +97,9 @@ def get_anniversary_dates_based_on_relationship(relationship):
         anniversary_date = anniversary_date.split('-')
         anniversary_date = '-'.join(anniversary_date)
         if anniversary_date != 'None' and anniversary_date != '':
-            anniversary_date = datetime.strptime(anniversary_date, '%Y-%m-%d')
-            formatted_day = anniversary_date.strftime('%B %d')
-            anniversary_dates[i] = (name, formatted_day)
+            anniversary_date = format_date(anniversary_date)
+            anniversary_dates[i] = (name, anniversary_date)
     return [x for x in anniversary_dates if x[1] not in ['None', '']]
-
-
-def print_all_data(table):
-    headers = ['Name', 'Birthday', 'Anniversary', 'Relationship']
-    data = get_all_data(table)
-    for i, (name, birthday, anniversary, relationship) in enumerate(data):
-        # convert the birthday to a string
-        if birthday is None or birthday == '':
-            birthday = 'None'
-        else:
-            # split the string into a list
-            birthday = str(birthday)
-            birthday = birthday.split('-')
-            # convert the list to a string
-            birthday = '-'.join(birthday)
-            # convert that string to a datetime object
-            birthday = datetime.strptime(birthday, '%Y-%m-%d')
-            formatted_day = birthday.strftime('%B %d')
-            # data[i] = (name, formatted_day, anniversary, relationship)
-        data[i] = (name, str(formatted_day), str(anniversary), relationship)
-    table = AsciiTable(data, headers)
-    return table.table
-
-
-def format_date(date):
-    date = str(date)
-    date = date.split('-')
-    date = '-'.join(date)
-    date = datetime.strptime(date, '%Y-%m-%d')
-    formatted_date = date.strftime('%B %d')
-
-    return formatted_date
-
 
 def print_all_data_colorful(table):
     headers = ['Name', 'Birthday', 'Anniversary', 'Relationship']
@@ -162,8 +123,8 @@ def print_all_data_colorful(table):
 
 if __name__ == '__main__':
     print(print_all_data_colorful(table))
-    print(get_anniversary_dates_based_on_relationship('uncle'))
+    print(get_anniversary_dates_based_on_relationship('cousin'))
     print(get_birthday('Doug'))
-    print(get_birthdays_based_on_relationship('brother'))
-    print(get_birthdays_based_on_relationship('sister'))
+    print([i for i in get_birthdays_based_on_relationship('brother')])
+    print([i for i in get_birthdays_based_on_relationship('sister')])
 
