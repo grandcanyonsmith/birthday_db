@@ -209,3 +209,7 @@ if __name__ == '__main__':
     print("\n+Anniversaries today:", check_anniversaries_today())
     print("\n+Anniversaries this week:", check_anniversaries_this_week())
     print("\n+Anniversaries this month:", check_anniversaries_this_month())
+
+# TODO:
+# - sort birthdays by soonest to latest
+# - convert the table printer into a function that can be called from the main function for whatever table you want to print
