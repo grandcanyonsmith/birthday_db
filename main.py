@@ -29,7 +29,7 @@ cursor = conn.cursor()
 
 
 def get_tables(database):
-    cursor.execute("SHOW TABLES FROM " + database)
+    cursor.execute(f"SHOW TABLES FROM {database}")
     return cursor.fetchall()
 
 
@@ -38,7 +38,7 @@ table = tables[0]
 
 # connect to the database and table and print all columns
 def get_all_data(table):
-    cursor.execute("SELECT * FROM " + table)
+    cursor.execute(f"SELECT * FROM {table}")
     return cursor.fetchall()
 
 def format_date(date):
@@ -46,14 +46,18 @@ def format_date(date):
     date = date.split('-')
     date = '-'.join(date)
     date = datetime.strptime(date, '%Y-%m-%d')
-    formatted_date = date.strftime('%B %d')
-
-    return formatted_date
+    return date.strftime('%B %d')
 
 
 # query what birthdays are on a given day, returns a list of names
 def get_birthdays_on_day(day, table):
-    cursor.execute("SELECT name FROM " + table + " WHERE DATE_FORMAT(birthday, '%m-%d') = DATE_FORMAT(" + day + ", '%m-%d')")  # noqa
+    cursor.execute(
+        f"SELECT name FROM {table}"
+        + " WHERE DATE_FORMAT(birthday, '%m-%d') = DATE_FORMAT("
+        + day
+        + ", '%m-%d')"
+    )
+
     return [x[0] for x in cursor.fetchall()]
 
 
@@ -65,38 +69,51 @@ def print_birthdays_on_day(day, table):
 
 # create a function that allows me to enter any name and query the database for the birthday. Have it ask me for the name and then query the database for the birthday.
 def get_birthday(name):
-    cursor.execute("SELECT birthday FROM " + table + " WHERE name LIKE '%" + name + "%'")  # noqa
+    cursor.execute(
+        f"SELECT birthday FROM {table}" + " WHERE name LIKE '%" + name + "%'"
+    )
+
     birthday = cursor.fetchall()
     if birthday == []:
         return 'That name is not in the database'
-    else:
-        birthday = str(birthday[0][0])
-        birthday = format_date(birthday)
-        return birthday
+    birthday = str(birthday[0][0])
+    return format_date(birthday)
 
 
 # print the birthday of people that are my cousins using the 'relation' column
 def get_birthdays_based_on_relationship(relationship):
-    cursor.execute("SELECT name, birthday FROM " + table + " WHERE relation LIKE '%" + relationship + "%'")  # noqa
+    cursor.execute(
+        f"SELECT name, birthday FROM {table}"
+        + " WHERE relation LIKE '%"
+        + relationship
+        + "%'"
+    )
+
     birthdays = cursor.fetchall()
     for i, (name, birthday) in enumerate(birthdays):
         birthday = str(birthday)
         birthday = birthday.split('-')
         birthday = '-'.join(birthday)
-        if birthday != 'None' and birthday != '':
+        if birthday not in ['None', '']:
             formatted_day = format_date(birthday)
             birthdays[i] = (name, formatted_day)
     return [x for x in birthdays if x[1] not in ['None', '']]
 
 
 def get_anniversary_dates_based_on_relationship(relationship):
-    cursor.execute("SELECT name, anniversary FROM " + table + " WHERE relation LIKE '%" + relationship + "%'")  # noqa
+    cursor.execute(
+        f"SELECT name, anniversary FROM {table}"
+        + " WHERE relation LIKE '%"
+        + relationship
+        + "%'"
+    )
+
     anniversary_dates = cursor.fetchall()
     for i, (name, anniversary_date) in enumerate(anniversary_dates):
         anniversary_date = str(anniversary_date)
         anniversary_date = anniversary_date.split('-')
         anniversary_date = '-'.join(anniversary_date)
-        if anniversary_date != 'None' and anniversary_date != '':
+        if anniversary_date not in ['None', '']:
             anniversary_date = format_date(anniversary_date)
             anniversary_dates[i] = (name, anniversary_date)
     return [x for x in anniversary_dates if x[1] not in ['None', '']]
@@ -122,75 +139,99 @@ def print_all_data_colorful(table):
     return table.table
 
 def check_birthdays_today():
-    cursor.execute("SELECT name, birthday FROM " + table + " WHERE DATE_FORMAT(birthday, '%m-%d') = DATE_FORMAT(CURDATE(), '%m-%d')")  # noqa
+    cursor.execute(
+        f"SELECT name, birthday FROM {table}"
+        + " WHERE DATE_FORMAT(birthday, '%m-%d') = DATE_FORMAT(CURDATE(), '%m-%d')"
+    )
+
     birthdays = cursor.fetchall()
     for i, (name, birthday) in enumerate(birthdays):
         birthday = str(birthday)
         birthday = birthday.split('-')
         birthday = '-'.join(birthday)
-        if birthday != 'None' and birthday != '':
+        if birthday not in ['None', '']:
             formatted_day = format_date(birthday)
             birthdays[i] = (name, formatted_day)
     return [x for x in birthdays if x[1] not in ['None', '']]
 
 def check_birthdays_this_week():
-    cursor.execute("SELECT name, birthday FROM " + table + " WHERE DATE_FORMAT(birthday, '%m-%d') BETWEEN DATE_FORMAT(CURDATE(), '%m-%d') AND DATE_FORMAT(CURDATE() + INTERVAL 7 DAY, '%m-%d')")  # noqa
+    cursor.execute(
+        f"SELECT name, birthday FROM {table}"
+        + " WHERE DATE_FORMAT(birthday, '%m-%d') BETWEEN DATE_FORMAT(CURDATE(), '%m-%d') AND DATE_FORMAT(CURDATE() + INTERVAL 7 DAY, '%m-%d')"
+    )
+
     birthdays = cursor.fetchall()
     for i, (name, birthday) in enumerate(birthdays):
         birthday = str(birthday)
         birthday = birthday.split('-')
         birthday = '-'.join(birthday)
-        if birthday != 'None' and birthday != '':
+        if birthday not in ['None', '']:
             formatted_day = format_date(birthday)
             birthdays[i] = (name, formatted_day)
     return [x for x in birthdays if x[1] not in ['None', '']]
 
 def check_birthdays_this_month():
-    cursor.execute("SELECT name, birthday FROM " + table + " WHERE DATE_FORMAT(birthday, '%m-%d') BETWEEN DATE_FORMAT(CURDATE(), '%m-%d') AND DATE_FORMAT(CURDATE() + INTERVAL 30 DAY, '%m-%d')")  # noqa
+    cursor.execute(
+        f"SELECT name, birthday FROM {table}"
+        + " WHERE DATE_FORMAT(birthday, '%m-%d') BETWEEN DATE_FORMAT(CURDATE(), '%m-%d') AND DATE_FORMAT(CURDATE() + INTERVAL 30 DAY, '%m-%d')"
+    )
+
     birthdays = cursor.fetchall()
     for i, (name, birthday) in enumerate(birthdays):
         birthday = str(birthday)
         birthday = birthday.split('-')
         birthday = '-'.join(birthday)
-        if birthday != 'None' and birthday != '':
+        if birthday not in ['None', '']:
             formatted_day = format_date(birthday)
             birthdays[i] = (name, formatted_day)
     return [x for x in birthdays if x[1] not in ['None', '']]
 
 
 def check_anniversaries_today():
-    cursor.execute("SELECT name, anniversary FROM " + table + " WHERE DATE_FORMAT(anniversary, '%m-%d') = DATE_FORMAT(CURDATE(), '%m-%d')")  # noqa
+    cursor.execute(
+        f"SELECT name, anniversary FROM {table}"
+        + " WHERE DATE_FORMAT(anniversary, '%m-%d') = DATE_FORMAT(CURDATE(), '%m-%d')"
+    )
+
     anniversaries = cursor.fetchall()
     for i, (name, anniversary) in enumerate(anniversaries):
         anniversary = str(anniversary)
         anniversary = anniversary.split('-')
         anniversary = '-'.join(anniversary)
-        if anniversary != 'None' and anniversary != '':
+        if anniversary not in ['None', '']:
             formatted_day = format_date(anniversary)
             anniversaries[i] = (name, formatted_day)
     return [x for x in anniversaries if x[1] not in ['None', '']]
 
 def check_anniversaries_this_week():
-    cursor.execute("SELECT name, anniversary FROM " + table + " WHERE DATE_FORMAT(anniversary, '%m-%d') BETWEEN DATE_FORMAT(CURDATE(), '%m-%d') AND DATE_FORMAT(CURDATE() + INTERVAL 7 DAY, '%m-%d')")  # noqa
+    cursor.execute(
+        f"SELECT name, anniversary FROM {table}"
+        + " WHERE DATE_FORMAT(anniversary, '%m-%d') BETWEEN DATE_FORMAT(CURDATE(), '%m-%d') AND DATE_FORMAT(CURDATE() + INTERVAL 7 DAY, '%m-%d')"
+    )
+
     anniversaries = cursor.fetchall()
     for i, (name, anniversary) in enumerate(anniversaries):
         anniversary = str(anniversary)
         anniversary = anniversary.split('-')
         anniversary = '-'.join(anniversary)
-        if anniversary != 'None' and anniversary != '':
+        if anniversary not in ['None', '']:
             formatted_day = format_date(anniversary)
             anniversaries[i] = (name, formatted_day)
     return [x for x in anniversaries if x[1] not in ['None', '']]
 
 def check_anniversaries_this_month():
     # check for anniversaries in the next 30 days
-    cursor.execute("SELECT name, anniversary FROM " + table + " WHERE DATE_FORMAT(anniversary, '%m-%d') BETWEEN DATE_FORMAT(CURDATE(), '%m-%d') AND DATE_FORMAT(CURDATE() + INTERVAL 30 DAY, '%m-%d')")  # noqa
+    cursor.execute(
+        f"SELECT name, anniversary FROM {table}"
+        + " WHERE DATE_FORMAT(anniversary, '%m-%d') BETWEEN DATE_FORMAT(CURDATE(), '%m-%d') AND DATE_FORMAT(CURDATE() + INTERVAL 30 DAY, '%m-%d')"
+    )
+
     anniversaries = cursor.fetchall()
     for i, (name, anniversary) in enumerate(anniversaries):
         anniversary = str(anniversary)
         anniversary = anniversary.split('-')
         anniversary = '-'.join(anniversary)
-        if anniversary != 'None' and anniversary != '':
+        if anniversary not in ['None', '']:
             formatted_day = format_date(anniversary)
             anniversaries[i] = (name, formatted_day)
     return [x for x in anniversaries if x[1] not in ['None', '']]
@@ -199,8 +240,8 @@ if __name__ == '__main__':
     print(print_all_data_colorful(table))
     print(get_anniversary_dates_based_on_relationship('cousin'))
     print(get_birthday('Doug'))
-    print([i for i in get_birthdays_based_on_relationship('brother')])
-    print([i for i in get_birthdays_based_on_relationship('sister')])
+    print(list(get_birthdays_based_on_relationship('brother')))
+    print(list(get_birthdays_based_on_relationship('sister')))
     print("\n+Birthdays today: " + str(check_birthdays_today()))
     print("\n+Birthdays this week:", check_birthdays_this_week())
     print("\n+Birthdays this month:", check_birthdays_this_month())
